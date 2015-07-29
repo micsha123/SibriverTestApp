@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">SibriverTestApp</string>
+    <string name="action_update">Загрузить</string>
+    <string name="tab_list">Список</string>
+    <string name="tab_map">Карта</string>
+
+    <string-array name="tabs_array">
+        <item>Список</item>
+        <item>Карта</item>
+    </string-array>
+    <string-array name="status_array">
+        <item>Все заказы</item>
+        <item>В работе</item>
+        <item>С вопросом</item>
+        <item>Отмененные</item>
+        <item>Архив</item>
+    </string-array>
+</resources>
