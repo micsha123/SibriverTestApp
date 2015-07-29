@@ -3,4 +3,10 @@
     <color name="ColorPrimary">#2196f3</color>
     <color name="ColorPrimaryDark">#bcd9fa</color>
     <color name="tabsScrollColor">#eeff41</color>
+    <color name="in_work">#fdd835</color>
+    <color name="newest">#ff9800</color>
+    <color name="canceled">#43a047</color>
+    <color name="archived">#b62a2a</color>
+    <color name="light_gray">#e0e0e0</color>
+    <color name="dark_gray">#878787</color>
 </resources>

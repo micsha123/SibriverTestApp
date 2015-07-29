@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sibriver.testapp.sibrivertestapp.R;
+import com.sibriver.testapp.sibrivertestapp.activity.MainActivity;
 
 
 public class SlidingTabLayout extends HorizontalScrollView {
@@ -25,6 +26,8 @@ public class SlidingTabLayout extends HorizontalScrollView {
         int getIndicatorColor(int position);
 
     }
+
+    private boolean isBlocked = false;
 
     private static final int TITLE_OFFSET_DIPS = 24;
     private static final int TAB_VIEW_PADDING_DIPS = 16;
@@ -61,6 +64,20 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
         mTabStrip = new SlidingTabStrip(context);
         addView(mTabStrip, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+    }
+
+    public void blockSlideTab(){
+        this.setClickable(false);
+        this.setBackgroundColor(getResources().getColor(R.color.dark_gray));
+        MainActivity.pager.setPagingEnabled(false);
+        isBlocked = true;
+    }
+
+    public void unblockSlidingTab(){
+        this.setClickable(true);
+        this.setBackgroundColor(getResources().getColor(R.color.ColorPrimary));
+        MainActivity.pager.setPagingEnabled(true);
+        isBlocked = false;
     }
 
     public void setCustomTabColorizer(TabColorizer tabColorizer) {
@@ -173,20 +190,22 @@ public class SlidingTabLayout extends HorizontalScrollView {
     }
 
     private void scrollToTab(int tabIndex, int positionOffset) {
-        final int tabStripChildCount = mTabStrip.getChildCount();
-        if (tabStripChildCount == 0 || tabIndex < 0 || tabIndex >= tabStripChildCount) {
-            return;
-        }
-
-        View selectedChild = mTabStrip.getChildAt(tabIndex);
-        if (selectedChild != null) {
-            int targetScrollX = selectedChild.getLeft() + positionOffset;
-
-            if (tabIndex > 0 || positionOffset > 0) {
-                targetScrollX -= mTitleOffset;
+        if(isBlocked){
+            final int tabStripChildCount = mTabStrip.getChildCount();
+            if (tabStripChildCount == 0 || tabIndex < 0 || tabIndex >= tabStripChildCount) {
+                return;
             }
 
-            scrollTo(targetScrollX, 0);
+            View selectedChild = mTabStrip.getChildAt(tabIndex);
+            if (selectedChild != null) {
+                int targetScrollX = selectedChild.getLeft() + positionOffset;
+
+                if (tabIndex > 0 || positionOffset > 0) {
+                    targetScrollX -= mTitleOffset;
+                }
+
+                scrollTo(targetScrollX, 0);
+            }
         }
     }
 
@@ -195,45 +214,51 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            int tabStripChildCount = mTabStrip.getChildCount();
-            if ((tabStripChildCount == 0) || (position < 0) || (position >= tabStripChildCount)) {
-                return;
-            }
+            if(!isBlocked){
+                int tabStripChildCount = mTabStrip.getChildCount();
+                if ((tabStripChildCount == 0) || (position < 0) || (position >= tabStripChildCount)) {
+                    return;
+                }
 
-            mTabStrip.onViewPagerPageChanged(position, positionOffset);
+                mTabStrip.onViewPagerPageChanged(position, positionOffset);
 
-            View selectedTitle = mTabStrip.getChildAt(position);
-            int extraOffset = (selectedTitle != null)
-                    ? (int) (positionOffset * selectedTitle.getWidth())
-                    : 0;
-            scrollToTab(position, extraOffset);
+                View selectedTitle = mTabStrip.getChildAt(position);
+                int extraOffset = (selectedTitle != null)
+                        ? (int) (positionOffset * selectedTitle.getWidth())
+                        : 0;
+                scrollToTab(position, extraOffset);
 
-            if (mViewPagerPageChangeListener != null) {
-                mViewPagerPageChangeListener.onPageScrolled(position, positionOffset,
-                        positionOffsetPixels);
+                if (mViewPagerPageChangeListener != null) {
+                    mViewPagerPageChangeListener.onPageScrolled(position, positionOffset,
+                            positionOffsetPixels);
+                }
             }
         }
 
         @Override
         public void onPageScrollStateChanged(int state) {
-            mScrollState = state;
+            if(!isBlocked){
+                mScrollState = state;
 
-            if (mViewPagerPageChangeListener != null) {
-                mViewPagerPageChangeListener.onPageScrollStateChanged(state);
+                if (mViewPagerPageChangeListener != null) {
+                    mViewPagerPageChangeListener.onPageScrollStateChanged(state);
+                }
             }
         }
 
         @Override
         public void onPageSelected(int position) {
-            if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
-                mTabStrip.onViewPagerPageChanged(position, 0f);
-                scrollToTab(position, 0);
-            }
-            for (int i = 0; i < mTabStrip.getChildCount(); i++) {
-                mTabStrip.getChildAt(i).setSelected(position == i);
-            }
-            if (mViewPagerPageChangeListener != null) {
-                mViewPagerPageChangeListener.onPageSelected(position);
+            if(!isBlocked){
+                if (mScrollState == ViewPager.SCROLL_STATE_IDLE) {
+                    mTabStrip.onViewPagerPageChanged(position, 0f);
+                    scrollToTab(position, 0);
+                }
+                for (int i = 0; i < mTabStrip.getChildCount(); i++) {
+                    mTabStrip.getChildAt(i).setSelected(position == i);
+                }
+                if (mViewPagerPageChangeListener != null) {
+                    mViewPagerPageChangeListener.onPageSelected(position);
+                }
             }
         }
     }
@@ -241,10 +266,12 @@ public class SlidingTabLayout extends HorizontalScrollView {
     private class TabClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            for (int i = 0; i < mTabStrip.getChildCount(); i++) {
-                if (v == mTabStrip.getChildAt(i)) {
-                    mViewPager.setCurrentItem(i);
-                    return;
+            if(!isBlocked){
+                for (int i = 0; i < mTabStrip.getChildCount(); i++) {
+                    if (v == mTabStrip.getChildAt(i)) {
+                        mViewPager.setCurrentItem(i);
+                        return;
+                    }
                 }
             }
         }

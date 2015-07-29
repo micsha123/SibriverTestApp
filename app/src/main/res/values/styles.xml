@@ -2,5 +2,13 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/ColorPrimary</item>
         <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
+        <item name="colorAccent">@color/light_gray</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/Styled.ActionMode</item>
+
+    </style>
+
+    <style name="Styled.ActionMode" parent="@style/Widget.AppCompat.ActionMode">
+        <item name="background">@color/dark_gray</item>
     </style>
 </resources>

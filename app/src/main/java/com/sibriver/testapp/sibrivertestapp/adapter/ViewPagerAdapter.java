@@ -13,13 +13,10 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     CharSequence titlesOfTabs[];
     int numberOfTabs;
 
-
     public ViewPagerAdapter(FragmentManager fm, CharSequence mTitles[], int mNumbOfTabsumb) {
         super(fm);
-
         this.titlesOfTabs = mTitles;
         this.numberOfTabs = mNumbOfTabsumb;
-
     }
 
     @Override
