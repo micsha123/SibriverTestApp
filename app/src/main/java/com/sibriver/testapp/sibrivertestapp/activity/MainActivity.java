@@ -20,9 +20,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private Spinner spinner;
-    public static CustomViewPager pager;
+    private CustomViewPager pager;
     private ViewPagerAdapter adapter;
-    public static SlidingTabLayout tabs;
+    private SlidingTabLayout tabs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,5 +94,19 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void blockTabs(){
+        tabs.blockSlideTab();
+        pager.setPagingEnabled(false);
+    }
+
+    public void unblockTabs(){
+        tabs.unblockSlideTab();
+        pager.setPagingEnabled(true);
+    }
+
+    public void setEnabledSpinner(boolean isEnabled){
+        spinner.setEnabled(isEnabled);
     }
 }

@@ -40,14 +40,16 @@ public class ListFragment extends Fragment{
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
             super.onCreateActionMode(actionMode, menu);
             getActivity().getMenuInflater().inflate(R.menu.multi_selecting_context, menu);
-            MainActivity.tabs.blockSlideTab();
+            ((MainActivity)getActivity()).blockTabs();
+            ((MainActivity)getActivity()).setEnabledSpinner(false);
             return true;
         }
 
         @Override
         public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
             if (menuItem.getItemId() == R.id.menu_item_delete_crime){
-                MainActivity.tabs.unblockSlidingTab();
+                ((MainActivity)getActivity()).blockTabs();
+                ((MainActivity)getActivity()).setEnabledSpinner(true);
                 actionMode.finish();
                 for (int i = requests.size(); i >= 0; i--) {
                     if (multiSelector.isSelected(i, 0)) {
@@ -63,7 +65,8 @@ public class ListFragment extends Fragment{
         }
         public void onDestroyActionMode(ActionMode actionMode) {
             multiSelector.setSelectable(false);
-            MainActivity.tabs.unblockSlidingTab();
+            ((MainActivity)getActivity()).unblockTabs();
+            ((MainActivity)getActivity()).setEnabledSpinner(true);
         }
     };
 

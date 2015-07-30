@@ -16,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sibriver.testapp.sibrivertestapp.R;
-import com.sibriver.testapp.sibrivertestapp.activity.MainActivity;
 
 
 public class SlidingTabLayout extends HorizontalScrollView {
@@ -69,14 +68,12 @@ public class SlidingTabLayout extends HorizontalScrollView {
     public void blockSlideTab(){
         this.setClickable(false);
         this.setBackgroundColor(getResources().getColor(R.color.dark_gray));
-        MainActivity.pager.setPagingEnabled(false);
         isBlocked = true;
     }
 
-    public void unblockSlidingTab(){
+    public void unblockSlideTab(){
         this.setClickable(true);
         this.setBackgroundColor(getResources().getColor(R.color.ColorPrimary));
-        MainActivity.pager.setPagingEnabled(true);
         isBlocked = false;
     }
 
