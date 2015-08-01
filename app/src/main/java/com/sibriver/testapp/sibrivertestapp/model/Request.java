@@ -1,27 +1,37 @@
 package com.sibriver.testapp.sibrivertestapp.model;
 
+import com.bluelinelabs.logansquare.annotation.JsonField;
+import com.bluelinelabs.logansquare.annotation.JsonObject;
 
-public class Request {
+@JsonObject
+public class Request{
 
-    private int id;
-    private String name;
-    private int status;
-    private String address;
-    private String lat;
-    private String lon;
-    private String created;
+    @JsonField
+    public int id;
+    @JsonField
+    public String name;
+    @JsonField
+    public int status;
+    @JsonField
+    public String address;
+    @JsonField
+    public String lat;
+    @JsonField
+    public String lon;
+    @JsonField
+    public String created;
 
-    public Request(int id, String name, int status, String address, String lat,
-                   String lon, String created){
-
-        this.id = id;
-        this.address = address;
-        this.name = name;
-        this.status = status;
-        this.lat = lat;
-        this.lon = lon;
-        this.created = created;
-    }
+//    public Request(int id, String name, int status, String address, String lat,
+//                   String lon, String created){
+//
+//        this.id = id;
+//        this.address = address;
+//        this.name = name;
+//        this.status = status;
+//        this.lat = lat;
+//        this.lon = lon;
+//        this.created = created;
+//    }
 
     public int getId() {
         return id;

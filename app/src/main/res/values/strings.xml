@@ -4,6 +4,7 @@
     <string name="tab_list">Список</string>
     <string name="tab_map">Карта</string>
     <string name="delete_crime">Удалить</string>
+    <string name="empty">Упс, кажется пора загружать данные! :)</string>
 
     <string-array name="tabs_array">
         <item>Список</item>
@@ -12,8 +13,14 @@
     <string-array name="status_array">
         <item>Все заказы</item>
         <item>В работе</item>
-        <item>С вопросом</item>
+        <item>Новые</item>
         <item>Отмененные</item>
         <item>Архив</item>
+    </string-array>
+    <string-array name="status_item_array">
+        <item>в работе</item>
+        <item>новая</item>
+        <item>отмена</item>
+        <item>архив</item>
     </string-array>
 </resources>

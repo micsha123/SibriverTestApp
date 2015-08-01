@@ -8,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.sibriver.testapp.sibrivertestapp.R;
 import com.sibriver.testapp.sibrivertestapp.adapter.SpinnerAdapter;
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         String[] statuses = getResources().getStringArray(R.array.status_array);
 
         SpinnerAdapter spinAdapter = new SpinnerAdapter(
-                getApplicationContext(), statuses);
+                this, statuses);
 
         spinner.setAdapter(spinAdapter);
 
@@ -69,9 +68,10 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemSelected(AdapterView<?> adapter, View v, int position, long id) {
-                String item = adapter.getItemAtPosition(position).toString();
-                Toast.makeText(getApplicationContext(), "Selected  : " + item,
-                        Toast.LENGTH_SHORT).show();
+//                String item = adapter.getItemAtPosition(position).toString();
+//                Toast.makeText(getApplicationContext(), "Selected  : " + Integer.toString(position),
+//                        Toast.LENGTH_SHORT).show();
+
             }
 
             @Override

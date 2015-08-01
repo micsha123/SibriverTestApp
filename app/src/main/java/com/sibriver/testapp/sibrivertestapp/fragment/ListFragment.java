@@ -1,21 +1,25 @@
 package com.sibriver.testapp.sibrivertestapp.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
 import com.bignerdranch.android.multiselector.MultiSelector;
@@ -24,16 +28,21 @@ import com.sibriver.testapp.sibrivertestapp.R;
 import com.sibriver.testapp.sibrivertestapp.activity.MainActivity;
 import com.sibriver.testapp.sibrivertestapp.data.Requests;
 import com.sibriver.testapp.sibrivertestapp.model.Request;
+import com.sibriver.testapp.sibrivertestapp.service.DownloadResultReceiver;
+import com.sibriver.testapp.sibrivertestapp.service.DownloadService;
+import com.sibriver.testapp.sibrivertestapp.widget.EmptyRecyclerView;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
 
-public class ListFragment extends Fragment{
+public class ListFragment extends Fragment implements DownloadResultReceiver.Receiver {
 
-    private static final String TAG = "crimeListFragment";
-    private RecyclerView recyclerView;
+    private static final String TAG = "ListFragment";
+    private EmptyRecyclerView recyclerView;
     private MultiSelector multiSelector = new MultiSelector();
     private RequestAdapter adapter;
+    private DownloadResultReceiver resultReceiver;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private ModalMultiSelectorCallback deleteMode = new ModalMultiSelectorCallback(multiSelector) {
         @Override
@@ -54,7 +63,7 @@ public class ListFragment extends Fragment{
                 for (int i = requests.size(); i >= 0; i--) {
                     if (multiSelector.isSelected(i, 0)) {
                         Request request = requests.get(i);
-                        Requests.getInstance().removeRequest(request);
+                        Requests.getInstance(getActivity()).removeRequest(request);
                         recyclerView.getAdapter().notifyItemRemoved(i);
                     }
                 }
@@ -112,20 +121,73 @@ public class ListFragment extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_list, parent, false);
-
+        View rootView = inflater.inflate(R.layout.fragment_list, parent, false);
         if (subtitleVisible) {
             getActionBar().setSubtitle(R.string.delete_crime);
         }
-
-        recyclerView = (RecyclerView) v.findViewById(R.id.recycler_view);
+        swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
+        swipeRefreshLayout.setColorSchemeResources(R.color.orange, R.color.green, R.color.blue);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadDataFromServer();
+            }
+        });
+        recyclerView = (EmptyRecyclerView) rootView.findViewById(R.id.recycler_view);
+        recyclerView.setEmptyView(rootView.findViewById(R.id.empty_recyclerview));
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
                 .color(getResources().getColor(R.color.dark_gray)).build());
-        requests = Requests.getInstance().getRequests();
+        requests = Requests.getInstance(getActivity()).getRequests();
         adapter = new RequestAdapter();
         recyclerView.setAdapter(adapter);
-        return v;
+        return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_fragment, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    private void loadDataFromServer(){
+        resultReceiver = new DownloadResultReceiver(new Handler());
+        resultReceiver.setReceiver(this);
+        Intent intent = new Intent(Intent.ACTION_SYNC, null, getActivity(), DownloadService.class);
+
+        intent.putExtra("url", "http://testtask.beta.sibriver.com/get/jobs/");
+        intent.putExtra("receiver", resultReceiver);
+        intent.putExtra("requestId", 101);
+
+        getActivity().startService(intent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_update) {
+            loadDataFromServer();
+//            new DownloadJSON().execute();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case DownloadService.STATUS_RUNNING:
+                break;
+            case DownloadService.STATUS_FINISHED:
+                int i = requests.size();
+                adapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+                break;
+            case DownloadService.STATUS_ERROR:
+                String error = resultData.getString(Intent.EXTRA_TEXT);
+                Toast.makeText(getActivity(), error, Toast.LENGTH_LONG).show();
+                break;
+        }
     }
 
     @Override
@@ -159,19 +221,19 @@ public class ListFragment extends Fragment{
             address.setText(request.getAddress());
             switch (request.getStatus()){
                 case 0:
-                    status.setText(getResources().getStringArray(R.array.status_array)[2].toLowerCase());
+                    status.setText(getResources().getStringArray(R.array.status_item_array)[1].toLowerCase());
                     status.setBackgroundColor(getResources().getColor(R.color.newest));
                     break;
                 case 1:
-                    status.setText(getResources().getStringArray(R.array.status_array)[1].toLowerCase());
+                    status.setText(getResources().getStringArray(R.array.status_item_array)[0].toLowerCase());
                     status.setBackgroundColor(getResources().getColor(R.color.in_work));
                     break;
                 case 2:
-                    status.setText(getResources().getStringArray(R.array.status_array)[4].toLowerCase());
+                    status.setText(getResources().getStringArray(R.array.status_item_array)[3].toLowerCase());
                     status.setBackgroundColor(getResources().getColor(R.color.canceled));
                     break;
                 default:
-                    status.setText(getResources().getStringArray(R.array.status_array)[3].toLowerCase());
+                    status.setText(getResources().getStringArray(R.array.status_item_array)[2].toLowerCase());
                     status.setBackgroundColor(getResources().getColor(R.color.archived));
             }
             created.setText(request.getCreated());
@@ -208,7 +270,6 @@ public class ListFragment extends Fragment{
         public void onBindViewHolder(RequestHolder holder, int pos) {
             Request request = requests.get(pos);
             holder.bindRequest(request);
-            Log.d(TAG, "binding crime" + request + "at position" + pos);
         }
 
         @Override
