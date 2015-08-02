@@ -196,6 +196,11 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
             loadDataFromServer();
             return true;
         }
+        if (id == R.id.action_erase_db) {
+            Requests.getInstance(getActivity()).deleteDB();
+            loadDataToRecyclerView(pos);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 

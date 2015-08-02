@@ -1,13 +1,12 @@
-<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              xmlns:tools="http://schemas.android.com/tools"
-             android:id="@+id/swipe_refresh_layout"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:background="@android:color/white"
              tools:context="com.sibriver.testapp.sibrivertestapp.fragment.ListFragment">
 
-    <FrameLayout
-        android:clickable="true"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -15,13 +14,13 @@
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
-        <TextView
-            android:id="@+id/empty_recyclerview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/empty"
-            android:layout_gravity="center"
-            android:gravity="center"/>
-    </FrameLayout>
-</android.support.v4.widget.SwipeRefreshLayout>
+    <TextView
+        android:id="@+id/empty_recyclerview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/empty"
+        android:layout_gravity="center"
+        android:gravity="center"/>
+</FrameLayout>

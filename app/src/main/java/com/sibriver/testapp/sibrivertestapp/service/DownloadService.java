@@ -75,8 +75,8 @@ public class DownloadService extends IntentService {
             inputStream = new BufferedInputStream(urlConnection.getInputStream());
             Response dataFromInputStream = LoganSquare.parse(inputStream, Response.class);
             Requests requestsInstance = Requests.getInstance(this);
-            requestsInstance.setRequests(dataFromInputStream.response);
-//            requestsInstance.saveRequestsToDB();
+            requestsInstance.saveRequestsToDB(dataFromInputStream.response);
+            requestsInstance.loadRequestsFromDB();
             return dataFromInputStream;
         } else {
             throw new DownloadException("Error!");

@@ -4,6 +4,12 @@
       tools:context=".MainFragment">
     <item android:id="@+id/action_update"
           android:title="@string/action_update"
+          android:icon="@android:drawable/ic_menu_add"
           android:orderInCategory="100"
           app:showAsAction="ifRoom"/>
+      <item android:id="@+id/action_erase_db"
+            android:title="@string/action_erase_db"
+            android:icon="@android:drawable/ic_menu_delete"
+            android:orderInCategory="100"
+            app:showAsAction="ifRoom"/>
 </menu>

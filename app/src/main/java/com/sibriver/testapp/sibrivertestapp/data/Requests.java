@@ -1,6 +1,7 @@
 package com.sibriver.testapp.sibrivertestapp.data;
 
 import android.content.Context;
+import android.database.Cursor;
 
 import com.sibriver.testapp.sibrivertestapp.model.Request;
 
@@ -12,13 +13,14 @@ public class Requests{
     private Context context;
 
     private ArrayList<Request> requests;
+    private ArrayList<Integer> deletedIDs;
     private SQLDatabaseHelper dbHelper;
 
     private Requests(Context context) {
-
-        requests = new ArrayList<Request>();
         this.context = context;
         this.dbHelper = new SQLDatabaseHelper(context);
+        loadRequestsFromDB();
+        loadDeletedIDsFromDB();
     }
 
     public static synchronized Requests getInstance(Context context) {
@@ -43,25 +45,24 @@ public class Requests{
         }
     }
 
-    public void setRequests(ArrayList<Request> requests) {
-        this.requests.addAll(requests);
-    }
-
     public void removeRequest(Request request){
+        dbHelper.deleteRequest(request.getId());
+        dbHelper.insertDeleted(request.getId());
         requests.remove(request);
     }
 
     private ArrayList<Request> getStatusRequests(int status){
         ArrayList<Request> statusRequests = new ArrayList<Request>();
-        for(Request request : requests){
-            if(request.getStatus() == status){
+        for(Request request : requests) {
+            if (request.getStatus() == status) {
                 statusRequests.add(request);
             }
         }
         return statusRequests;
     }
 
-    public void saveRequestsToDB(){
+    public void saveRequestsToDB(ArrayList<Request> requests){
+        loadDeletedIDsFromDB();
         for(Request request : requests){
             dbHelper.insertRequest(request.getId(),
                     request.getName(),
@@ -71,5 +72,40 @@ public class Requests{
                     request.getLat(),
                     request.getLon());
         }
+        for(Integer i: deletedIDs){
+            dbHelper.deleteRequest(i);
+        }
+    }
+
+    private void loadDeletedIDsFromDB(){
+        deletedIDs = new ArrayList();
+        Cursor cursor = dbHelper.getDeletedIDs();
+        cursor.moveToFirst();
+        while(!cursor.isAfterLast()) {
+            deletedIDs.add(cursor.getInt(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_ID)));
+            cursor.moveToNext();
+        }
+    }
+
+    public void loadRequestsFromDB(){
+        requests = new ArrayList<>();
+        Cursor cursor = dbHelper.getRequests();
+        cursor.moveToFirst();
+        while(!cursor.isAfterLast()) {
+            requests.add(new Request(
+                    cursor.getInt(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_ID)),
+                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_NAME)),
+                    cursor.getInt(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_STATUS)),
+                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_ADDRESS)),
+                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_LAT)),
+                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_LONG)),
+                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_CREATED))));
+            cursor.moveToNext();
+        }
+    }
+
+    public void deleteDB(){
+        dbHelper.deleteDBs();
     }
 }
+

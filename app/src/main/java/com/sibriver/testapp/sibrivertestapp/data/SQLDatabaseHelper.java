@@ -23,25 +23,14 @@ public class SQLDatabaseHelper {
     public static final String COLUMN_LAT = "latitude";
     public static final String COLUMN_LONG = "longitude";
 
+    private static final String TABLE_DELETED = "deleted_table";
+
     private DatabaseOpenHelper openHelper;
     private SQLiteDatabase database;
 
     public SQLDatabaseHelper(Context context) {
         openHelper = new DatabaseOpenHelper(context);
         database = openHelper.getWritableDatabase();
-    }
-
-    public boolean checkIfExist(){
-        String buildSQL = "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '" + TABLE_REQUESTS + "'";
-        Cursor cursor = database.rawQuery(buildSQL, null);
-        if(cursor != null) {
-            if(cursor.getCount() > 0) {
-                cursor.close();
-                return true;
-            }
-            cursor.close();
-        }
-        return false;
     }
 
     public void insertRequest(int id, String name, String address, int status, String created,
@@ -57,14 +46,32 @@ public class SQLDatabaseHelper {
         database.insert(TABLE_REQUESTS, null, contentValues);
     }
 
-    public void deleteRequests()
+    public void insertDeleted(int id){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COLUMN_ID, id);
+        database.insert(TABLE_DELETED, null, contentValues);
+    }
+
+    public void deleteRequest(int id)
+    {
+        database.delete(TABLE_REQUESTS, COLUMN_ID + "=" + Integer.toString(id), null);
+    }
+
+    public void deleteDBs()
     {
         database.delete(TABLE_REQUESTS, null, null);
+        database.delete(TABLE_DELETED, null, null);
     }
 
     public Cursor getRequests() {
         String buildSQL = "SELECT * FROM " + TABLE_REQUESTS;
-        Log.d(TAG, "getMarkers SQL: " + buildSQL);
+        Log.d(TAG, "getRequests SQL: " + buildSQL);
+        return database.rawQuery(buildSQL, null);
+    }
+
+    public Cursor getDeletedIDs() {
+        String buildSQL = "SELECT * FROM " + TABLE_DELETED;
+        Log.d(TAG, "getDeleted SQL: " + buildSQL);
         return database.rawQuery(buildSQL, null);
     }
 
@@ -76,24 +83,29 @@ public class SQLDatabaseHelper {
 
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
-            String buildMarkersSQL = "CREATE TABLE " + TABLE_REQUESTS + "( " + COLUMN_ID + " INTEGER, " +
-                    COLUMN_NAME + " TEXT, " + COLUMN_ADDRESS + " TEXT, "+ COLUMN_STATUS + " INTEGER, " +
-                    COLUMN_CREATED + " TEXT, " + COLUMN_LAT + " REAL, " + COLUMN_LONG + " REAL )";
+            String buildRequestsSQL = "CREATE TABLE " + TABLE_REQUESTS + "( " + COLUMN_ID + " INTEGER PRIMARY KEY," +
+                    COLUMN_NAME + " TEXT, " + COLUMN_ADDRESS +
+                    " TEXT, "+ COLUMN_STATUS + " INTEGER, " + COLUMN_CREATED + " TEXT, " +
+                    COLUMN_LAT + " REAL, " + COLUMN_LONG + " REAL )";
 
-            Log.d(TAG, "onCreate SQL: " + buildMarkersSQL);
+            String buildDeletedSQL = "CREATE TABLE " + TABLE_DELETED + "( " + COLUMN_ID + " INTEGER PRIMARY KEY)";
 
-            sqLiteDatabase.execSQL(buildMarkersSQL);
+            Log.d(TAG, "onCreate SQL: " + buildRequestsSQL);
+
+            sqLiteDatabase.execSQL(buildRequestsSQL);
+            sqLiteDatabase.execSQL(buildDeletedSQL);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 
-            String buildMarkersSQL = "DROP TABLE IF EXISTS " + TABLE_REQUESTS;
+            String buildRequestsSQL = "DROP TABLE IF EXISTS " + TABLE_REQUESTS;
+            String buildDeletedSQL = "DROP TABLE IF EXISTS " + TABLE_DELETED;
 
-            Log.d(TAG, "onUpgrade SQL: " + buildMarkersSQL);
+            Log.d(TAG, "onUpgrade SQL: " + buildRequestsSQL);
 
-            sqLiteDatabase.execSQL(buildMarkersSQL);
-
+            sqLiteDatabase.execSQL(buildRequestsSQL);
+            sqLiteDatabase.execSQL(buildDeletedSQL);
             onCreate(sqLiteDatabase);
         }
     }
