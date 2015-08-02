@@ -5,6 +5,7 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+/** ViewPager with setPagingEnabled method for blocking/unblocking while CAB on screen */
 public class CustomViewPager extends ViewPager {
 
     private boolean isPagingEnabled = true;

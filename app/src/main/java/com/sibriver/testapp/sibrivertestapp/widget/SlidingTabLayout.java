@@ -17,7 +17,10 @@ import android.widget.TextView;
 
 import com.sibriver.testapp.sibrivertestapp.R;
 
-
+/** Sliding tab layout for material implementation.
+ * @author Google inc.
+ * https://github.com/google/iosched/blob/master/android/src/main/java/com/google/samples/apps/iosched/ui/widget/SlidingTabLayout.java
+ * */
 public class SlidingTabLayout extends HorizontalScrollView {
 
     public interface TabColorizer {

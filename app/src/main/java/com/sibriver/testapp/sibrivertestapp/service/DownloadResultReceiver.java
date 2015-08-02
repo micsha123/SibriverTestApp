@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 
+/** Typycal ResultReceiver for ListFragment
+ * @see ResultReceiver */
 public class DownloadResultReceiver extends ResultReceiver {
     private Receiver mReceiver;
 

@@ -38,19 +38,31 @@ import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 import java.util.ArrayList;
 
 public class ListFragment extends Fragment implements DownloadResultReceiver.Receiver {
-
+    /** URL for HTTP request */
     private static final String URL_LOAD = "http://testtask.beta.sibriver.com/get/jobs/";
     private static final String TAG = "ListFragment";
+    /** Handling selected position of spinner */
     private int pos;
+    /** RecyclerView */
     private EmptyRecyclerView recyclerView;
+    /** Multiselector for multiple selection.
+     * Thanx to Bill Phillips.
+     * https://github.com/bignerdranch/recyclerview-multiselect
+     * @see MultiSelector */
     private MultiSelector multiSelector = new MultiSelector();
+    /** Requests array for showing */
     private ArrayList<Request> requests = new ArrayList<Request>();
+    /** Showing subtitle for deleting request when CAB on screen*/
     private boolean subtitleVisible;
+    /** Adapter for RecyclerView */
     private RequestAdapter adapter;
+    /** ResultReceiver for getting result from DownloadService */
     private DownloadResultReceiver resultReceiver;
+    /** SwipeToRefreshLayout */
     private SwipeRefreshLayout swipeRefreshLayout;
+    /** Spinner instance for handling changes of selection */
     private Spinner spinner;
-
+    /** ModalMultiSelector for showing CAB when RecyclerView item were long-clicked */
     private ModalMultiSelectorCallback deleteMode = new ModalMultiSelectorCallback(multiSelector) {
         @Override
         public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
@@ -93,16 +105,14 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         setHasOptionsMenu(true);
         subtitleVisible = false;
     }
-
+    /** restoring multiselector bundle */
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-
         if (multiSelector != null) {
             Bundle bundle = savedInstanceState;
             if (bundle != null) {
                 multiSelector.restoreSelectionStates(bundle.getBundle(TAG));
             }
-
             if (multiSelector.isSelectable()) {
                 if (deleteMode != null) {
                     deleteMode.setClearOnPrepare(false);
@@ -118,18 +128,18 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         outState.putBundle(TAG, multiSelector.saveSelectionStates());
         super.onSaveInstanceState(outState);
     }
-
+    /** Method returns actionbar for hiding subtitle of "delete" menu item */
     protected ActionBar getActionBar() {
         return ((AppCompatActivity) getActivity()).getSupportActionBar();
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup parent, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_list, parent, false);
 
+        /** Hide delete subtitle for nonCAB */
         if (subtitleVisible) {
-            getActionBar().setSubtitle(R.string.delete_crime);
+            getActionBar().setSubtitle(R.string.delete_request);
         }
 
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
@@ -141,6 +151,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
             }
         });
 
+        /** RecyclerView, getting, setting up, loading with data */
         recyclerView = (EmptyRecyclerView) rootView.findViewById(R.id.recycler_view);
         recyclerView.setEmptyView(rootView.findViewById(R.id.empty_recyclerview));
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -151,6 +162,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         loadDataToRecyclerView(pos);
 
         spinner = ((MainActivity)getActivity()).getSpinner();
+        /** Spinner return position of selected item */
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
             @Override
@@ -165,18 +177,13 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         });
         return rootView;
     }
-
+    /** Method provides requests items by status */
     private void loadDataToRecyclerView(int position){
         requests = Requests.getInstance(getActivity()).getRequests(position);
         adapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_fragment, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
+    /** Method create intent for DownloadService and start it*/
     private void loadDataFromServer(){
         resultReceiver = new DownloadResultReceiver(new Handler());
         resultReceiver.setReceiver(this);
@@ -187,6 +194,12 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         intent.putExtra("requestId", 101);
 
         getActivity().startService(intent);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_fragment, menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -203,7 +216,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         }
         return super.onOptionsItemSelected(item);
     }
-
+    /** Method provides loading data from DB to requests array */
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         switch (resultCode) {
@@ -219,7 +232,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
                 break;
         }
     }
-
+    /** Method provides creating CAB by inflating actionbar with layout*/
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         getActivity().getMenuInflater().inflate(R.menu.multi_selecting_context, menu);
@@ -228,6 +241,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
 /*
 /////////////////////////////////////////
  */
+    /** Holder for creating items for recyclerView */
     private class RequestHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
         private final TextView name;
         private final TextView address;
@@ -247,7 +261,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
             itemView.setOnLongClickListener(this);
 
          }
-
+        /** Binding data to views*/
         public void bindRequest(Request request) {
             this.request = request;
             name.setText(request.getName());
@@ -289,6 +303,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         }
     }
 
+    /** Adapter for RecyclerView */
     private class RequestAdapter extends RecyclerView.Adapter<RequestHolder> {
 
         @Override

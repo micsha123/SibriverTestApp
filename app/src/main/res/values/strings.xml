@@ -3,7 +3,7 @@
     <string name="action_update">Загрузить</string>
     <string name="tab_list">Список</string>
     <string name="tab_map">Карта</string>
-    <string name="delete_crime">Удалить</string>
+    <string name="delete_request">Удалить</string>
     <string name="empty">Упс, кажется пора загружать данные! :)</string>
     <string name="action_erase_db">Отчистить БД</string>
 

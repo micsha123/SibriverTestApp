@@ -7,9 +7,11 @@ import com.sibriver.testapp.sibrivertestapp.model.Request;
 
 import java.util.ArrayList;
 
+/** Data-managing class */
 public class Requests{
 
     private static Requests instance;
+    /** Host-activity context */
     private Context context;
 
     private ArrayList<Request> requests;
@@ -30,6 +32,7 @@ public class Requests{
         return instance;
     }
 
+    /** Method provides returns array by status */
     public ArrayList<Request> getRequests(int status) {
         switch (status){
             case 0:
@@ -44,13 +47,13 @@ public class Requests{
                 return getStatusRequests(2);
         }
     }
-
+    /** Method provides deleting request from Request database*/
     public void removeRequest(Request request){
         dbHelper.deleteRequest(request.getId());
         dbHelper.insertDeleted(request.getId());
         requests.remove(request);
     }
-
+    /** Method provides requests array by status */
     private ArrayList<Request> getStatusRequests(int status){
         ArrayList<Request> statusRequests = new ArrayList<Request>();
         for(Request request : requests) {
@@ -60,7 +63,7 @@ public class Requests{
         }
         return statusRequests;
     }
-
+    /** Method provides saving requests to database and erase deleted before items from database */
     public void saveRequestsToDB(ArrayList<Request> requests){
         loadDeletedIDsFromDB();
         for(Request request : requests){
@@ -77,6 +80,7 @@ public class Requests{
         }
     }
 
+    /** Method provides array of deleted item's IDs from database */
     private void loadDeletedIDsFromDB(){
         deletedIDs = new ArrayList();
         Cursor cursor = dbHelper.getDeletedIDs();
@@ -86,7 +90,7 @@ public class Requests{
             cursor.moveToNext();
         }
     }
-
+    /** Method provides loading data from DB to requests array */
     public void loadRequestsFromDB(){
         requests = new ArrayList<>();
         Cursor cursor = dbHelper.getRequests();
@@ -103,7 +107,7 @@ public class Requests{
             cursor.moveToNext();
         }
     }
-
+    /** Method provides erasing databases for debugging */
     public void deleteDB(){
         dbHelper.deleteDBs();
     }

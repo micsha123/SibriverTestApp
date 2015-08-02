@@ -17,10 +17,14 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/** Service for HTTP connection, getting and parsing JSON */
 public class DownloadService extends IntentService {
 
+    /** Status for running service */
     public static final int STATUS_RUNNING = 0;
+    /** Status for finished service */
     public static final int STATUS_FINISHED = 1;
+    /** Status for error */
     public static final int STATUS_ERROR = 2;
 
     private static final String TAG = "DownloadService";
@@ -33,16 +37,17 @@ public class DownloadService extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
         Log.d(TAG, "Service Started!");
-
+        //*
         final ResultReceiver receiver = intent.getParcelableExtra("receiver");
         String url = intent.getStringExtra("url");
 
         Bundle bundle = new Bundle();
 
+        /** Sending statuses to receiver of ListFragment */
         if (!TextUtils.isEmpty(url)) {
             receiver.send(STATUS_RUNNING, Bundle.EMPTY);
             try {
-                Response results = downloadData(url);
+                Response results = downloadDataToDB(url);
 
                 if (null != results && results.response.size() > 0) {
                     bundle.putInt("result", results.response.size());
@@ -57,11 +62,15 @@ public class DownloadService extends IntentService {
         this.stopSelf();
     }
 
-    private Response downloadData(String requestUrl) throws IOException, DownloadException {
+    /** Method provides making HTTP requests and downloading JSON for parsing by LoganSquare and saving
+     * to database */
+    private Response downloadDataToDB(String requestUrl) throws IOException, DownloadException {
         InputStream inputStream;
         HttpURLConnection urlConnection;
 
+        /** Setting url to connect */
         URL url = new URL(requestUrl);
+        /** open connection */
         urlConnection = (HttpURLConnection) url.openConnection();
 
         urlConnection.setRequestProperty("Content-Type", "application/json");
@@ -72,8 +81,11 @@ public class DownloadService extends IntentService {
         int statusCode = urlConnection.getResponseCode();
 
         if (statusCode == 200) {
+            /** Getting stream */
             inputStream = new BufferedInputStream(urlConnection.getInputStream());
+            /** Parsing stream by LoganSquare */
             Response dataFromInputStream = LoganSquare.parse(inputStream, Response.class);
+            /** Getting Requests instance for managing database*/
             Requests requestsInstance = Requests.getInstance(this);
             requestsInstance.saveRequestsToDB(dataFromInputStream.response);
             requestsInstance.loadRequestsFromDB();

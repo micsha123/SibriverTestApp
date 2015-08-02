@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 
 import com.sibriver.testapp.sibrivertestapp.R;
 
+
+/** MapFragment. It could be but you said "not needed". */
 public class MapFragment extends Fragment{
 
     @Override

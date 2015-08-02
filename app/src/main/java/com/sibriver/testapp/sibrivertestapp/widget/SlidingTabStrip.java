@@ -10,6 +10,11 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.LinearLayout;
 
+/** Sliding tab strip for material implementation.
+ * @author Google inc.
+ * https://github.com/google/iosched/blob/master/android/src/main/java/com/google/samples/apps/iosched/ui/widget/SlidingTabStrip.java
+ * */
+
 class SlidingTabStrip extends LinearLayout {
 
     private static final int DEFAULT_BOTTOM_BORDER_THICKNESS_DIPS = 0;

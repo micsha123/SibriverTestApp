@@ -5,6 +5,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
 
+/** recyclerview with emptyView() method
+ *
+ * */
 public class EmptyRecyclerView extends RecyclerView {
     private View emptyView;
     final private AdapterDataObserver observer = new AdapterDataObserver() {
@@ -36,6 +39,7 @@ public class EmptyRecyclerView extends RecyclerView {
         super(context, attrs, defStyle);
     }
 
+    /** Makes visible textView with "no items" warning and invisible recycler layout */
     void checkIfEmpty() {
         if (emptyView != null && getAdapter() != null) {
             final boolean emptyViewVisible = getAdapter().getItemCount() == 0;
@@ -58,6 +62,7 @@ public class EmptyRecyclerView extends RecyclerView {
         checkIfEmpty();
     }
 
+    /** Checking if emptyView is set */
     public void setEmptyView(View emptyView) {
         this.emptyView = emptyView;
         checkIfEmpty();
