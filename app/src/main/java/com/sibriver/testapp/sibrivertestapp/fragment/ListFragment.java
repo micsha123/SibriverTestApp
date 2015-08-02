@@ -18,6 +18,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,12 +39,17 @@ import java.util.ArrayList;
 
 public class ListFragment extends Fragment implements DownloadResultReceiver.Receiver {
 
+    private static final String URL_LOAD = "http://testtask.beta.sibriver.com/get/jobs/";
     private static final String TAG = "ListFragment";
+    private int pos;
     private EmptyRecyclerView recyclerView;
     private MultiSelector multiSelector = new MultiSelector();
+    private ArrayList<Request> requests = new ArrayList<Request>();
+    private boolean subtitleVisible;
     private RequestAdapter adapter;
     private DownloadResultReceiver resultReceiver;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private Spinner spinner;
 
     private ModalMultiSelectorCallback deleteMode = new ModalMultiSelectorCallback(multiSelector) {
         @Override
@@ -64,6 +71,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
                     if (multiSelector.isSelected(i, 0)) {
                         Request request = requests.get(i);
                         Requests.getInstance(getActivity()).removeRequest(request);
+                        requests.remove(request);
                         recyclerView.getAdapter().notifyItemRemoved(i);
                     }
                 }
@@ -78,9 +86,6 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
             ((MainActivity)getActivity()).setEnabledSpinner(true);
         }
     };
-
-    private ArrayList<Request> requests;
-    private boolean subtitleVisible;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -120,11 +125,13 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, final ViewGroup parent, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_list, parent, false);
+
         if (subtitleVisible) {
             getActionBar().setSubtitle(R.string.delete_crime);
         }
+
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_refresh_layout);
         swipeRefreshLayout.setColorSchemeResources(R.color.orange, R.color.green, R.color.blue);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -133,15 +140,35 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
                 loadDataFromServer();
             }
         });
+
         recyclerView = (EmptyRecyclerView) rootView.findViewById(R.id.recycler_view);
         recyclerView.setEmptyView(rootView.findViewById(R.id.empty_recyclerview));
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getActivity())
                 .color(getResources().getColor(R.color.dark_gray)).build());
-        requests = Requests.getInstance(getActivity()).getRequests();
         adapter = new RequestAdapter();
         recyclerView.setAdapter(adapter);
+        loadDataToRecyclerView(pos);
+
+        spinner = ((MainActivity)getActivity()).getSpinner();
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View v, int position, long id) {
+                pos = position;
+                loadDataToRecyclerView(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
         return rootView;
+    }
+
+    private void loadDataToRecyclerView(int position){
+        requests = Requests.getInstance(getActivity()).getRequests(position);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -155,7 +182,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         resultReceiver.setReceiver(this);
         Intent intent = new Intent(Intent.ACTION_SYNC, null, getActivity(), DownloadService.class);
 
-        intent.putExtra("url", "http://testtask.beta.sibriver.com/get/jobs/");
+        intent.putExtra("url", URL_LOAD);
         intent.putExtra("receiver", resultReceiver);
         intent.putExtra("requestId", 101);
 
@@ -167,7 +194,6 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         int id = item.getItemId();
         if (id == R.id.action_update) {
             loadDataFromServer();
-//            new DownloadJSON().execute();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -179,8 +205,7 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
             case DownloadService.STATUS_RUNNING:
                 break;
             case DownloadService.STATUS_FINISHED:
-                int i = requests.size();
-                adapter.notifyDataSetChanged();
+                loadDataToRecyclerView(pos);
                 swipeRefreshLayout.setRefreshing(false);
                 break;
             case DownloadService.STATUS_ERROR:
@@ -195,6 +220,9 @@ public class ListFragment extends Fragment implements DownloadResultReceiver.Rec
         getActivity().getMenuInflater().inflate(R.menu.multi_selecting_context, menu);
     }
 
+/*
+/////////////////////////////////////////
+ */
     private class RequestHolder extends SwappingHolder implements View.OnClickListener, View.OnLongClickListener {
         private final TextView name;
         private final TextView address;

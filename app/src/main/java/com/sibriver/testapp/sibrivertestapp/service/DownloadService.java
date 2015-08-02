@@ -76,34 +76,12 @@ public class DownloadService extends IntentService {
             Response dataFromInputStream = LoganSquare.parse(inputStream, Response.class);
             Requests requestsInstance = Requests.getInstance(this);
             requestsInstance.setRequests(dataFromInputStream.response);
+//            requestsInstance.saveRequestsToDB();
             return dataFromInputStream;
         } else {
-            throw new DownloadException("Ошибка скачивания данных!");
+            throw new DownloadException("Error!");
         }
     }
-
-
-//    private ArrayList<Request> parseResult(String result) {
-//
-//
-//
-////        String[] blogTitles = null;
-////        try {
-////            JSONObject response = new JSONObject(result);
-////            JSONArray posts = response.optJSONArray("posts");
-////            blogTitles = new String[posts.length()];
-////
-////            for (int i = 0; i < posts.length(); i++) {
-////                JSONObject post = posts.optJSONObject(i);
-////                String title = post.optString("title");
-////                blogTitles[i] = title;
-////            }
-////
-////        } catch (JSONException e) {
-////            e.printStackTrace();
-////        }
-//
-//    }
 
     public class DownloadException extends Exception {
 

@@ -5,8 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Spinner;
 
 import com.sibriver.testapp.sibrivertestapp.R;
@@ -63,21 +61,10 @@ public class MainActivity extends AppCompatActivity {
                 this, statuses);
 
         spinner.setAdapter(spinAdapter);
+    }
 
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> adapter, View v, int position, long id) {
-//                String item = adapter.getItemAtPosition(position).toString();
-//                Toast.makeText(getApplicationContext(), "Selected  : " + Integer.toString(position),
-//                        Toast.LENGTH_SHORT).show();
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+    public Spinner getSpinner(){
+        return spinner;
     }
 
     @Override

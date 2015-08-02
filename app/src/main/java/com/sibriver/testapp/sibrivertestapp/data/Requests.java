@@ -19,17 +19,6 @@ public class Requests{
         requests = new ArrayList<Request>();
         this.context = context;
         this.dbHelper = new SQLDatabaseHelper(context);
-//
-//        requests.add(new Request(1, "xcvdd", 0, "asdsdsg", "13.12312", "12.354353", "123.asdda"));
-//        requests.add(new Request(1, "nater", 1, "rewrwe", "13.12312", "12.354353", "a123s.asdda"));
-//        requests.add(new Request(1, "iopiop", 2, "hsgsdg", "13.12312", "12.354353", "a44s.asdda"));
-//        requests.add(new Request(1, "sdfgdfg", 3, "djjfsfsfs0", "13.12312", "12.354353", "as.asdda"));
-//        requests.add(new Request(1, "eddt", 2, "uuuufsfs0", "13.12312", "12.354353", "67.asdda"));
-//        requests.add(new Request(1, "xcvdd", 0, "asdsdsg", "13.12312", "12.354353", "123.asdda"));
-//        requests.add(new Request(1, "nater", 1, "rewrwe", "13.12312", "12.354353", "a123s.asdda"));
-//        requests.add(new Request(1, "iopiop", 2, "hsgsdg", "13.12312", "12.354353", "a44s.asdda"));
-//        requests.add(new Request(1, "sdfgdfg", 3, "djjfsfsfs0", "13.12312", "12.354353", "as.asdda"));
-//        requests.add(new Request(1, "eddt", 2, "uuuufsfs0", "13.12312", "12.354353", "67.asdda"));
     }
 
     public static synchronized Requests getInstance(Context context) {
@@ -39,8 +28,19 @@ public class Requests{
         return instance;
     }
 
-    public ArrayList<Request> getRequests() {
-        return requests;
+    public ArrayList<Request> getRequests(int status) {
+        switch (status){
+            case 0:
+                return requests;
+            case 1:
+                return getStatusRequests(1);
+            case 2:
+                return getStatusRequests(0);
+            case 3:
+                return getStatusRequests(3);
+            default:
+                return getStatusRequests(2);
+        }
     }
 
     public void setRequests(ArrayList<Request> requests) {
@@ -49,6 +49,16 @@ public class Requests{
 
     public void removeRequest(Request request){
         requests.remove(request);
+    }
+
+    private ArrayList<Request> getStatusRequests(int status){
+        ArrayList<Request> statusRequests = new ArrayList<Request>();
+        for(Request request : requests){
+            if(request.getStatus() == status){
+                statusRequests.add(request);
+            }
+        }
+        return statusRequests;
     }
 
     public void saveRequestsToDB(){
@@ -62,20 +72,4 @@ public class Requests{
                     request.getLon());
         }
     }
-
-//    public void loadRequestsFromDB(){
-//        Cursor cursor = dbHelper.getRequests();
-//        cursor.moveToFirst();
-//        while(!cursor.isAfterLast()) {
-//            requests.add(new Request(cursor.getInt(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_ID)),
-//                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_NAME)),
-//                    cursor.getInt(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_STATUS)),
-//                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_ADDRESS)),
-//                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_LAT)),
-//                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_LONG)),
-//                    cursor.getString(cursor.getColumnIndex(SQLDatabaseHelper.COLUMN_CREATED))));
-//            cursor.moveToNext();
-//        }
-//    }
-
 }

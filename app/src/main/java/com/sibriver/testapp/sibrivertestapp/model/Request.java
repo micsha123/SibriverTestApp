@@ -21,18 +21,6 @@ public class Request{
     @JsonField
     public String created;
 
-//    public Request(int id, String name, int status, String address, String lat,
-//                   String lon, String created){
-//
-//        this.id = id;
-//        this.address = address;
-//        this.name = name;
-//        this.status = status;
-//        this.lat = lat;
-//        this.lon = lon;
-//        this.created = created;
-//    }
-
     public int getId() {
         return id;
     }
